@@ -2,7 +2,6 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,9 +34,9 @@ app.post('/generate', async (req, res) => {
       },
       {
         headers: {
-          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Authorization': 'Bearer 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',
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://ai-fq7z.onrender.com', // ✅ Your frontend URL
+          'HTTP-Referer': 'https://ai-fq7z.onrender.com',
           'X-Title': 'AI Essay Generator',
           'OpenRouter-Model': 'tencent-hunyuan/hunyuan-chat'
         }
