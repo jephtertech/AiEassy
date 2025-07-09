@@ -23,18 +23,16 @@ app.post('/generate', async (req, res) => {
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'tencent-hunyuan/a13b-instruct', // ✅ Correct model
-        messages: [
-          { role: 'user', content: prompt }
-        ]
+        model: 'tencent-hunyuan/a13b-instruct', // ✅ Exact model name
+        messages: [{ role: 'user', content: prompt }]
       },
       {
         headers: {
           'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://yourdomain.com', // Optional but recommended
+          'HTTP-Referer': 'https://yourdomain.com', // ✅ You can change to your domain
           'X-Title': 'AI Essay Generator',
-          'OpenRouter-Model': 'tencent-hunyuan/a13b-instruct' // ✅ Correct header
+          'OpenRouter-Model': 'tencent-hunyuan/a13b-instruct' // ✅ Exact header match
         }
       }
     );
