@@ -89,57 +89,57 @@
       <a href="#" class="underline hover:text-blue-300">Terms of Service</a> ·
       <a href="#" class="underline hover:text-blue-300">More Projects</a>
     </div>
-  </footer>  <script>
-    const form = document.getElementById("essayForm");
-    const output = document.getElementById("outputSection");
-    const essayBox = document.getElementById("essayOutput");
-    const loading = document.getElementById("loadingIndicator");
+  </footer> <script>
+  const form = document.getElementById("essayForm");
+  const output = document.getElementById("outputSection");
+  const essayBox = document.getElementById("essayOutput");
+  const loading = document.getElementById("loadingIndicator");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const topic = document.getElementById("topic").value.trim();
-      const length = document.getElementById("length").value;
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const topic = document.getElementById("topic").value.trim();
+    const length = document.getElementById("length").value;
 
-      if (!topic || topic.length < 5) {
-        alert("Please enter a valid topic (min 5 characters)");
-        return;
-      }
+    if (!topic || topic.length < 5) {
+      alert("Please enter a valid topic (min 5 characters)");
+      return;
+    }
 
-      essayBox.innerHTML = "";
-      output.classList.remove("hidden");
-      loading.classList.remove("hidden");
+    essayBox.innerHTML = "";
+    output.classList.remove("hidden");
+    loading.classList.remove("hidden");
 
-      try {
-        const res = await fetch("/generate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ topic, length })
-        });
-
-        const data = await res.json();
-
-        if (data.essay) {
-          essayBox.innerText = data.essay;
-        } else {
-          essayBox.innerHTML = `<p class="text-red-300">Error: ${data.error || 'Essay not generated.'}</p>`;
-        }
-      } catch (err) {
-        console.error(err);
-        essayBox.innerHTML = `<p class="text-red-300">Something went wrong. Please try again.</p>`;
-      } finally {
-        loading.classList.add("hidden");
-      }
-    });
-
-    document.getElementById("copyBtn").addEventListener("click", () => {
-      const text = document.getElementById("essayOutput").innerText;
-      if (!text) return;
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById("copyBtn");
-        const old = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
-        setTimeout(() => btn.innerHTML = old, 2000);
+    try {
+      const res = await fetch("https://ai-fq7z.onrender.com/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic, length })
       });
+
+      const data = await res.json();
+
+      if (data.essay) {
+        essayBox.innerText = data.essay;
+      } else {
+        essayBox.innerHTML = `<p class="text-red-300">Error: ${data.error || 'Essay not generated.'}</p>`;
+      }
+    } catch (err) {
+      console.error(err);
+      essayBox.innerHTML = `<p class="text-red-300">Something went wrong. Please try again.</p>`;
+    } finally {
+      loading.classList.add("hidden");
+    }
+  });
+
+  document.getElementById("copyBtn").addEventListener("click", () => {
+    const text = document.getElementById("essayOutput").innerText;
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById("copyBtn");
+      const old = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+      setTimeout(() => btn.innerHTML = old, 2000);
     });
-  </script></body>
+  });
+  </script> </body>
 </html>
