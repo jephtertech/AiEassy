@@ -1,5 +1,5 @@
 const express = require('express');
-const fetch = require('node-fetch');
+const axios = require('axios');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -15,40 +15,41 @@ app.post('/generate', async (req, res) => {
   const prompt = `Write a ${length} essay on the topic: ${topic}`;
 
   try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'OpenRouter-Model': 'tencent/hunyuan', // ✅ New free model
-        'X-Title': 'AI Essay Generator'
-      },
-      body: JSON.stringify({
-        model: 'tencent/hunyuan',
+    const response = await axios.post(
+      'https://openrouter.ai/api/v1/chat/completions',
+      {
+        model: 'tencent-hunyuan/hunyuan-chat',
         messages: [
           {
             role: 'user',
             content: prompt
           }
         ]
-      })
-    });
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://yourdomain.com', // Optional
+          'X-Title': 'AI Essay Generator', // Optional
+          'OpenRouter-Model': 'tencent-hunyuan/hunyuan-chat'
+        }
+      }
+    );
 
-    const data = await response.json();
+    const data = response.data;
 
     if (data.choices && data.choices.length > 0) {
       res.json({ essay: data.choices[0].message.content });
     } else {
-      console.error('OpenRouter error response:', data);
       res.status(500).json({ error: 'Failed to generate essay.' });
     }
-
   } catch (error) {
-    console.error('Error generating essay:', error);
+    console.error('Error generating essay:', error.message);
     res.status(500).json({ error: 'Server error.' });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
