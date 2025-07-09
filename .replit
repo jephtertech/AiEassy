@@ -1,14 +1,30 @@
-entrypoint = "index.js"
-modules = ["nodejs-22"]
-hidden = [".config", "package-lock.json"]
+entrypoint = "index.cjs"   # ✅ Your server starts here
+modules = ["nodejs-22"]             # ✅ Using Node.js v22
+hidden = [".config", "package-lock.json"]  # ✅ Optional hidden files
 
 [gitHubImport]
 requiredFiles = [".replit", "replit.nix", "package.json", "package-lock.json"]
 
 [nix]
-channel = "stable-24_11"
+channel = "stable-24_11"           # ✅ Fine for now
 
 [deployment]
-run = ["node", "index.js"]
-deploymentTarget = "autoscale"
-ignorePorts = false
+run = ["node", "index.cjs"]    # ✅ Correct startup command
+deploymentTarget = "autoscale"          # ✅ Optional, good for hosting
+ignorePorts = false                     # ✅ Correct if your app uses a port (like 3000)
+
+[[ports]]
+localPort = 3000
+externalPort = 80
+
+[workflows]
+runButton = "Start Server"
+
+[[workflows.workflow]]
+name = "Start Server"
+author = 43188588
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node index.cjs"

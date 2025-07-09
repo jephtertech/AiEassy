@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Essay Generator</title>
+
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+    }
+    .loading-dots::after {
+      content: '.';
+      animation: dots 1.5s steps(5, end) infinite;
+    }
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60% { content: '...'; }
+      80%, 100% { content: ''; }
+    }
+    #essayOutput {
+      white-space: pre-wrap;
+      line-height: 1.75;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-50 font-sans text-gray-800">
+
+  <!-- Header -->
+  <header class="gradient-bg text-white py-16 px-4 shadow-md">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-5xl font-extrabold mb-4 drop-shadow-lg">AI Essay Generator</h1>
+      <p class="text-xl opacity-90 font-light">Get beautifully written essays on any topic—instantly.</p>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-4xl mx-auto px-4 py-12 -mt-14">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 mb-12">
+      <form id="essayForm" class="space-y-8">
+        <!-- Topic Input -->
+        <div>
+          <label for="topic" class="block text-lg font-semibold text-gray-700 mb-2">
+            <i class="fas fa-pen-fancy mr-2 text-blue-600"></i>Essay Topic
+          </label>
+          <input
+            type="text"
+            id="topic"
+            required
+            placeholder="e.g., The Role of AI in Education"
+            maxlength="100"
+            class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition text-gray-700"
+          />
+        </div>
+
+        <!-- Length Dropdown -->
+        <div>
+          <label for="length" class="block text-lg font-semibold text-gray-700 mb-2">
+            <i class="fas fa-ruler-combined mr-2 text-blue-600"></i>Essay Length
+          </label>
+          <select
+            id="length"
+            class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-700"
+          >
+            <option value="short">Short (300–500 words)</option>
+            <option value="medium" selected>Medium (500–800 words)</option>
+            <option value="long">Long (800–1200 words)</option>
+          </select>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          id="generateBtn"
+          class="w-full gradient-bg text-white py-3 px-6 rounded-lg font-bold text-lg hover:opacity-90 transition flex items-center justify-center shadow-md"
+        >
+          <i class="fas fa-magic mr-2"></i> Generate Essay
+        </button>
+      </form>
+    </div>
+
+    <!-- Output -->
+    <div id="outputSection" class="hidden bg-white rounded-2xl shadow-xl p-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-gray-800">
+          <i class="fas fa-scroll mr-2 text-blue-600"></i>Your Essay
+        </h2>
+        <button id="copyBtn" class="text-blue-600 hover:text-blue-800 transition">
+          <i class="far fa-copy mr-1"></i> Copy
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div id="loadingIndicator" class="hidden py-8 text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600 mb-4"></div>
+        <p class="text-gray-600 loading-dots">Generating your essay</p>
+      </div>
+
+      <!-- Essay Result -->
+      <div id="essayOutput" class="prose max-w-none text-gray-700 overflow-x-auto"></div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 py-10 mt-20">
+    <div class="max-w-4xl mx-auto px-4 text-center text-gray-700 space-y-4">
+      <p class="text-lg font-medium">© 2025 AI Essay Generator. Crafted with care by <strong>Jeffrey</strong>.</p>
+      <p class="text-md">Jeffrey is a passionate web developer blending performance, design, and purpose.</p>
+      <p class="text-sm italic text-gray-500">“Every line of code is a brushstroke. Websites aren't just tools—they're art.”</p>
+      <div class="flex justify-center space-x-6 pt-4 text-xl">
+        <a href="https://github.com/yourusername" target="_blank" class="text-gray-600 hover:text-gray-900"><i class="fab fa-github"></i></a>
+        <a href="https://twitter.com/yourusername" target="_blank" class="text-gray-600 hover:text-gray-900"><i class="fab fa-x-twitter"></i></a>
+        <a href="https://linkedin.com/in/yourusername" target="_blank" class="text-gray-600 hover:text-gray-900"><i class="fab fa-linkedin"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script -->
+  <script>
+    document.getElementById('essayForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const topic = document.getElementById('topic').value.trim();
+      const length = document.getElementById('length').value;
+      if (!topic || topic.length < 5) {
+        alert('Please enter a valid topic (at least 5 characters)');
+        return;
+      }
+
+      document.getElementById('outputSection').classList.remove('hidden');
+      document.getElementById('loadingIndicator').classList.remove('hidden');
+      document.getElementById('essayOutput').innerHTML = '';
+      document.getElementById('generateBtn').disabled = true;
+
+      try {
+        const response = await fetch('/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic, length }),
+        });
+
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
+
+        const data = await response.json();
+        const wordCount = data.essay.split(/\s+/).filter(w => w).length;
+
+        document.getElementById('essayOutput').innerHTML = `
+          ${data.essay}
+          <p class="mt-6 text-sm text-gray-500 italic">Word count: ${wordCount}</p>
+        `;
+      } catch (err) {
+        console.error(err);
+        document.getElementById('essayOutput').innerHTML =
+          `<p class="text-red-600">Error generating essay. Please try again later.</p>`;
+      } finally {
+        document.getElementById('loadingIndicator').classList.add('hidden');
+        document.getElementById('generateBtn').disabled = false;
+      }
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const text = document.getElementById('essayOutput').textContent;
+      if (!text) return;
+
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+        setTimeout(() => btn.innerHTML = original, 2000);
+      });
+    });
+  </script>
+</body>
+</html>
