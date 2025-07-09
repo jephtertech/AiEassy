@@ -1,98 +1,150 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Essay Generator</title>  <!-- Tailwind CSS & FontAwesome -->  <script src="https://cdn.tailwindcss.com"></script>  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">  <!-- Smooth Parallax Animation -->  <style>
+  <title>AI Essay Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
     body {
-      background: linear-gradient(270deg, #6b73ff, #000dff, #6b73ff);
-      background-size: 600% 600%;
-      animation: gradientMotion 15s ease infinite;
+      background: linear-gradient(-45deg, #000428, #004e92, #1cb5e0, #000428);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
     }
 
-    @keyframes gradientMotion {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+    @keyframes gradient {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .loading-dots::after {
       content: '.';
       animation: dots 1.5s steps(5, end) infinite;
     }
+
     @keyframes dots {
       0%, 20% { content: '.'; }
       40% { content: '..'; }
       60% { content: '...'; }
       80%, 100% { content: ''; }
     }
+  </style>
+</head>
 
-    #essayOutput {
-      white-space: pre-wrap;
-      line-height: 1.75;
-      font-size: 1rem;
-    }
-  </style></head>
-<body class="min-h-screen text-white font-sans">  <header class="py-16 px-4 text-center shadow-md">
-    <h1 class="text-5xl font-extrabold drop-shadow-xl">AI Essay Generator</h1>
-    <p class="text-xl font-light opacity-90 mt-2">Get beautifully written essays on any topic—instantly.</p>
-  </header>  <main class="max-w-4xl mx-auto px-4 py-12">
-    <div class="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 mb-12">
-      <form id="essayForm" class="space-y-8">
-        <div>
-          <label for="topic" class="block text-lg font-semibold mb-2">
-            <i class="fas fa-pen-fancy mr-2"></i>Essay Topic
-          </label>
-          <input
-            type="text"
-            id="topic"
-            required
-            placeholder="e.g., The Role of AI in Education"
-            maxlength="100"
-            class="w-full px-5 py-3 border border-gray-300 rounded-lg text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div><div>
-      <label for="length" class="block text-lg font-semibold mb-2">
-        <i class="fas fa-ruler-combined mr-2"></i>Essay Length
-      </label>
-      <select
-        id="length"
-        class="w-full px-5 py-3 border border-gray-300 rounded-lg bg-white text-black focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-      >
-        <option value="short">Short (300–500 words)</option>
-        <option value="medium" selected>Medium (500–800 words)</option>
-        <option value="long">Long (800–1200 words)</option>
-      </select>
+<body class="min-h-screen font-sans text-white px-4">
+  <!-- Header -->
+  <header class="text-center py-20">
+    <h1 class="text-5xl font-extrabold drop-shadow-xl mb-4">✨ AI Essay Generator</h1>
+    <p class="text-xl opacity-90 font-light">Generate compelling essays instantly using AI</p>
+  </header>
+
+  <!-- Main Form -->
+  <main class="max-w-2xl mx-auto glass rounded-xl p-8 shadow-lg">
+    <form id="essayForm" class="space-y-6">
+      <div>
+        <label for="topic" class="block mb-2 text-lg font-medium">Essay Topic</label>
+        <input type="text" id="topic" required placeholder="e.g., Climate Change and Its Impact"
+          class="w-full p-3 rounded-md bg-white bg-opacity-80 text-black focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      </div>
+
+      <div>
+        <label for="length" class="block mb-2 text-lg font-medium">Essay Length</label>
+        <select id="length"
+          class="w-full p-3 rounded-md bg-white bg-opacity-80 text-black focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="short">Short (300–500 words)</option>
+          <option value="medium" selected>Medium (500–800 words)</option>
+          <option value="long">Long (800–1200 words)</option>
+        </select>
+      </div>
+
+      <button type="submit"
+        class="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 rounded-lg font-bold text-white shadow-lg transition duration-200">
+        <i class="fas fa-magic mr-2"></i>Generate Essay
+      </button>
+    </form>
+  </main>
+
+  <!-- Output Section -->
+  <section id="outputSection" class="max-w-3xl mx-auto mt-10 hidden">
+    <div class="glass p-6 rounded-xl shadow-xl">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold"><i class="fas fa-scroll text-blue-300 mr-2"></i>Your Essay</h2>
+        <button id="copyBtn" class="text-blue-300 hover:text-blue-500">
+          <i class="fas fa-copy mr-1"></i> Copy
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div id="loadingIndicator" class="hidden text-center py-6">
+        <div class="animate-spin h-10 w-10 border-t-4 border-b-4 border-blue-500 rounded-full mx-auto mb-3"></div>
+        <p class="loading-dots text-lg text-white/80">Generating your essay</p>
+      </div>
+
+      <!-- Essay Output -->
+      <div id="essayOutput" class="prose prose-invert text-white max-w-none whitespace-pre-line"></div>
     </div>
+  </section>
 
-    <button
-      type="submit"
-      id="generateBtn"
-      class="w-full bg-blue-600 hover:bg-blue-700 transition text-white py-3 px-6 rounded-lg font-bold text-lg shadow-lg flex items-center justify-center"
-    >
-      <i class="fas fa-magic mr-2"></i> Generate Essay
-    </button>
-  </form>
-</div>
+  <script>
+    const form = document.getElementById("essayForm");
+    const output = document.getElementById("outputSection");
+    const essayBox = document.getElementById("essayOutput");
+    const loading = document.getElementById("loadingIndicator");
 
-<div id="outputSection" class="hidden bg-white/10 backdrop-blur-md rounded-2xl shadow-xl p-8">
-  <div class="flex justify-between items-center mb-4">
-    <h2 class="text-2xl font-bold">
-      <i class="fas fa-scroll mr-2"></i>Your Essay
-    </h2>
-    <button id="copyBtn" class="hover:text-blue-400">
-      <i class="far fa-copy mr-1"></i> Copy
-    </button>
-  </div>
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const topic = document.getElementById("topic").value.trim();
+      const length = document.getElementById("length").value;
 
-  <div id="loadingIndicator" class="hidden py-8 text-center">
-    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white mb-4"></div>
-    <p class="loading-dots">Generating your essay</p>
-  </div>
+      if (!topic || topic.length < 5) {
+        alert("Please enter a valid topic (min 5 characters)");
+        return;
+      }
 
-  <div id="essayOutput" class="prose max-w-none text-white overflow-x-auto"></div>
-</div>
+      essayBox.innerHTML = "";
+      output.classList.remove("hidden");
+      loading.classList.remove("hidden");
 
-  </main>  <footer class="text-center py-8 text-sm">
-    <p class="text-white">&copy; 2025 AI Essay Generator | Built by <a href="https://github.com/JeffreyFx1" target="_blank" class="underline text-blue-200">JeffreyFx1</a></p>
-  </footer>  <!-- External JS -->  <script src="/index.js"></script></body>
+      try {
+        const res = await fetch("/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topic, length })
+        });
+
+        const data = await res.json();
+
+        if (data.essay) {
+          essayBox.innerText = data.essay;
+        } else {
+          essayBox.innerHTML = `<p class="text-red-300">Error: ${data.error || 'Essay not generated.'}</p>`;
+        }
+      } catch (err) {
+        console.error(err);
+        essayBox.innerHTML = `<p class="text-red-300">Something went wrong. Please try again.</p>`;
+      } finally {
+        loading.classList.add("hidden");
+      }
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", () => {
+      const text = document.getElementById("essayOutput").innerText;
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById("copyBtn");
+        const old = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+        setTimeout(() => btn.innerHTML = old, 2000);
+      });
+    });
+  </script>
+</body>
 </html>
