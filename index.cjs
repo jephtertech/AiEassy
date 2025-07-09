@@ -1,54 +1,54 @@
 const express = require('express');
+const fetch = require('node-fetch');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const axios = require('axios');
-const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Serve static files from /public
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Serve index.html on GET /
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Essay generation route
 app.post('/generate', async (req, res) => {
-  const { prompt } = req.body;
+  const { topic, length } = req.body;
 
-  try {
-    const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: 'mistralai/mistral-small',
-        messages: [{ role: 'user', content: prompt }]
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    const prompt = `Write a ${length} essay on the topic: ${topic}`;
 
-    const aiText = response.data.choices[0].message.content;
-    res.json({ essay: aiText });
+      try {
+          const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                      headers: {
+                              'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                                      'Content-Type': 'application/json',
+                                              'HTTP-Referer': 'https://yourdomain.com', // optional
+                                                      'X-Title': 'AI Essay Generator',           // optional
+                                                              'OpenRouter-Model': 'mistralai/mistral-7b-instruct' // ✅ FREE MODEL
+                                                                    },
+                                                                          body: JSON.stringify({
+                                                                                  model: 'mistralai/mistral-7b-instruct', // still needed for body
+                                                                                          messages: [
+                                                                                                    {
+                                                                                                                role: 'user',
+                                                                                                                            content: prompt
+                                                                                                                                      }
+                                                                                                                                              ]
+                                                                                                                                                    })
+                                                                                                                                                        });
 
-  } catch (error) {
-    console.error(error?.response?.data || error.message);
-    res.status(500).json({ error: "Failed to generate essay. Try again." });
-  }
-});
+                                                                                                                                                            const data = await response.json();
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+                                                                                                                                                                if (data.choices && data.choices.length > 0) {
+                                                                                                                                                                      res.json({ essay: data.choices[0].message.content });
+                                                                                                                                                                          } else {
+                                                                                                                                                                                res.status(500).json({ error: 'Failed to generate essay.' });
+                                                                                                                                                                                    }
+
+                                                                                                                                                                                      } catch (error) {
+                                                                                                                                                                                          console.error('Error generating essay:', error);
+                                                                                                                                                                                              res.status(500).json({ error: 'Server error.' });
+                                                                                                                                                                                                }
+                                                                                                                                                                                                });
+
+                                                                                                                                                                                                app.listen(PORT, () => {
+                                                                                                                                                                                                  console.log(`Server running on port ${PORT}`);
+                                                                                                                                                                                                  });
