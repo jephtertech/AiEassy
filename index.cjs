@@ -7,39 +7,45 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static frontend
+// ✅ CORS - Allow only your frontend
+app.use(cors({
+  origin: ['https://ai-fq7z.onrender.com'], // 🔒 Set to your deployed frontend URL
+  methods: ['POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-// POST /generate – Handle essay generation
+// ✅ Parse incoming JSON
+app.use(express.json());
+
+// ✅ Serve frontend files (from public folder)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// ✅ Essay generation route
 app.post('/generate', async (req, res) => {
   const { topic, length } = req.body;
 
-  // Prepare prompt
   const prompt = `Write a ${length} essay on the topic: ${topic}`;
 
   try {
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'tencent-hunyuan/hunyuan-chat', // ✅ Corrected model name
+        model: 'tencent-hunyuan/hunyuan-chat',
         messages: [{ role: 'user', content: prompt }]
       },
       {
         headers: {
           'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://yourdomain.com', // ✅ You can change to your domain
+          'HTTP-Referer': 'https://ai-fq7z.onrender.com', // ✅ Your frontend URL
           'X-Title': 'AI Essay Generator',
-          'OpenRouter-Model': 'tencent-hunyuan/hunyuan-chat' // ✅ Corrected model header
+          'OpenRouter-Model': 'tencent-hunyuan/hunyuan-chat'
         }
       }
     );
 
     const data = response.data;
 
-    // Handle AI response
     if (data.choices && data.choices.length > 0) {
       res.json({ essay: data.choices[0].message.content });
     } else {
@@ -47,11 +53,13 @@ app.post('/generate', async (req, res) => {
     }
   } catch (err) {
     console.error('❌ Error generating essay:', err.response?.data || err.message);
-    res.status(500).json({ error: 'Server error. Please try again later.' });
+    res.status(500).json({
+      error: err.response?.data?.error || 'Server error. Please try again later.'
+    });
   }
 });
 
-// Start server
+// ✅ Start server
 app.listen(PORT, () => {
   console.log(`✅ Server is running at: http://localhost:${PORT}`);
 });
