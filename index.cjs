@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
@@ -10,40 +11,38 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({
   origin: ['https://ai-fq7z.onrender.com'], // 🔒 Your frontend URL
   methods: ['POST'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type']
 }));
 
 // ✅ Parse incoming JSON
 app.use(express.json());
 
-// ✅ Serve frontend files (from public folder)
+// ✅ Serve frontend files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ Essay generation route (using DeepInfra)
+// ✅ Essay generation route (Groq API)
 app.post('/generate', async (req, res) => {
   const { topic, length } = req.body;
-
   const prompt = `Write a ${length} essay on the topic: ${topic}`;
 
   try {
     const response = await axios.post(
-      'https://api.deepinfra.com/v1/openai/chat/completions',
+      'https://api.groq.com/openai/v1/chat/completions',
       {
-        model: 'meta-llama/Meta-Llama-3-70B-Instruct',
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
         max_tokens: 1000
       },
       {
         headers: {
-          'Authorization': 'Bearer ItI2roCQHV5dYveKwtmDFaxYlrccuyQ8', // <-- 🔑 replace this
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
           'Content-Type': 'application/json'
         }
       }
     );
 
     const data = response.data;
-
     if (data.choices && data.choices.length > 0) {
       res.json({ essay: data.choices[0].message.content });
     } else {
