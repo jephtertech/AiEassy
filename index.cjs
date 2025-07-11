@@ -36,7 +36,7 @@ app.post('/generate', async (req, res) => {
       },
       {
         headers: {
-          'Authorization': 'Bearer ${process.env.DEEPINFRA_API_KEY}', // <-- 🔑 replace this
+          'Authorization': 'Bearer ItI2roCQHV5dYveKwtmDFaxYlrccuyQ8', // <-- 🔑 replace this
           'Content-Type': 'application/json'
         }
       }
