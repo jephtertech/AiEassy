@@ -1,7 +1,7 @@
 {
   "name": "ai-essay-generator",
   "version": "1.0.0",
-  "description": "An AI-powered essay generator web app using DeepInfra",
+  "description": "An AI-powered essay generator web app using Groq API",
   "main": "index.cjs",
   "scripts": {
     "start": "node index.cjs"
@@ -10,7 +10,8 @@
     "AI",
     "essay",
     "generator",
-    "deepinfra",
+    "groq",
+    "llama",
     "nodejs",
     "express"
   ],
