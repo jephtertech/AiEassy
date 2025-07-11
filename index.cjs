@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 // ✅ CORS - Allow only your frontend
 app.use(cors({
-  origin: ['https://ai-fq7z.onrender.com'], // 🔒 Set to your deployed frontend URL
+  origin: ['https://ai-fq7z.onrender.com'], // 🔒 Your frontend URL
   methods: ['POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -19,7 +19,7 @@ app.use(express.json());
 // ✅ Serve frontend files (from public folder)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ Essay generation route
+// ✅ Essay generation route (using DeepInfra)
 app.post('/generate', async (req, res) => {
   const { topic, length } = req.body;
 
@@ -27,18 +27,17 @@ app.post('/generate', async (req, res) => {
 
   try {
     const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
+      'https://api.deepinfra.com/v1/openai/chat/completions',
       {
-        model: 'tencent-hunyuan/hunyuan-chat',
-        messages: [{ role: 'user', content: prompt }]
+        model: 'meta-llama/Meta-Llama-3-70B-Instruct',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 1000
       },
       {
         headers: {
-          'Authorization': 'Bearer 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',
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://ai-fq7z.onrender.com',
-          'X-Title': 'AI Essay Generator',
-          'OpenRouter-Model': 'tencent-hunyuan/hunyuan-chat'
+          'Authorization': 'Bearer ItI2roCQHV5dYveKwtmDFaxYlrccuyQ8', // <-- 🔑 replace this
+          'Content-Type': 'application/json'
         }
       }
     );
