@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors({
-  origin: ['https://ai-fq7z.onrender.com'],
+  origin: ['https://aieassy.onrender.com/'],
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
 }));
