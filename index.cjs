@@ -7,21 +7,56 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ✅ CORS - Allow only your frontend
 app.use(cors({
-  origin: ['https://aieassy.onrender.com/'],
-  methods: ['GET', 'POST'],
+  origin: ['https://ai-fq7z.onrender.com'], // 🔒 Your frontend URL
+  methods: ['POST'],
   allowedHeaders: ['Content-Type']
 }));
 
+// ✅ Parse incoming JSON
 app.use(express.json());
+
+// ✅ Serve frontend files
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// ✅ Essay generation route (Groq API)
+app.post('/generate', async (req, res) => {
+  const { topic, length } = req.body;
+  const prompt = `Write a ${length} essay on the topic: ${topic}`;
+
+  try {
+    const response = await axios.post(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 1000
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const data = response.data;
+    if (data.choices && data.choices.length > 0) {
+      res.json({ essay: data.choices[0].message.content });
+    } else {
+      res.status(500).json({ error: 'AI response incomplete or missing.' });
+    }
+  } catch (err) {
+    console.error('❌ Error generating essay:', err.response?.data || err.message);
+    res.status(500).json({
+      error: err.response?.data?.error || 'Server error. Please try again later.'
+    });
+  }
 });
 
-// POST /generate stays the same
-
+// ✅ Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+  console.log(`✅ Server is running at: http://localhost:${PORT}`);
 });
